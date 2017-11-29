@@ -1,3 +1,4 @@
+from bisect import bisect
 from os.path import join, isdir, isfile
 from os import listdir
 from scipy.io.wavfile import read
@@ -22,16 +23,27 @@ class VCTK(object):
 
 
 class FramewiseVCTK(object):
-    def __init__(self, dataset, window_size, hop_size):
+    def __init__(self, dataset, window_size=40, hop_size=5):
+        self.vctk_dataset = dataset
+        self.window_size = window_size
+        self.hop_size = hop_size
+
         self.total_length = 0
-        for text, wav in dataset:
+        self.cumsize = []
+        for i, (text, wav) in enumerate(dataset):
             sample_rate, data = read(wav)
             window_size_frames = sample_rate // 1000 * window_size
             hop_size_frames = sample_rate // 1000 * hop_size
-            self.total_length += (data.shape[0] - window_size_frames) // hop_size_frames
+            length = (data.shape[0] - window_size_frames) // hop_size_frames
+            self.total_length += length
+            self.cumsize[i] = self.total_length
 
     def __getitem__(self, item):
-        pass
+        vctk_ind = bisect(self.cumsize, item)
+        txt, wav = self.vctk_dataset[vctk_ind]
+        sample_rate, data = read(wav)
+        data_ind = item - self.cumsize[vctk_ind]
+        return data[data_ind * self.hop_size: data_ind * self.hop_size + self.window_size]
 
     def __len__(self):
         return self.total_length
