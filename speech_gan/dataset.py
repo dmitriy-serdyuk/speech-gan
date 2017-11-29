@@ -29,14 +29,15 @@ class FramewiseVCTK(object):
         self.hop_size = hop_size
 
         self.total_length = 0
+        # Cumulative index
         self.cumsize = []
-        for i, (text, wav) in enumerate(dataset):
+        for text, wav in dataset:
             sample_rate, data = read(wav)
             window_size_frames = sample_rate // 1000 * window_size
             hop_size_frames = sample_rate // 1000 * hop_size
             length = (data.shape[0] - window_size_frames) // hop_size_frames
             self.total_length += length
-            self.cumsize[i] = self.total_length
+            self.cumsize.append(self.total_length)
 
     def __getitem__(self, item):
         vctk_ind = bisect(self.cumsize, item)
