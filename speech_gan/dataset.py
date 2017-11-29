@@ -11,7 +11,7 @@ class VCTK(object):
         dirs = [f for f in listdir(txt_path) if isdir(join(txt_path, f))]
         for dir in dirs:
             self.files.extend((join(txt_path, dir, f), join(wav_path, dir, f))
-                              for f in listdir(dir) if isfile(join(dir, f)))
+                              for f in listdir(join(txt_path, dir)) if isfile(join(txt_path, dir, f)))
 
     def __getitem__(self, item):
         return self.files[item]
