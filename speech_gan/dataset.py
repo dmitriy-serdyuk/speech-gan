@@ -1,3 +1,4 @@
+import numpy
 from bisect import bisect
 from os.path import join, isdir, isfile
 from os import listdir
@@ -23,10 +24,11 @@ class VCTK(object):
 
 
 class FramewiseVCTK(object):
-    def __init__(self, dataset, window_size=40, hop_size=5):
+    def __init__(self, dataset, window_size=40, hop_size=5, window_type='none'):
         self.vctk_dataset = dataset
         self.window_size = window_size
         self.hop_size = hop_size
+        self.window_type = window_type
 
         self.total_length = 0
         # Cumulative index
@@ -46,7 +48,13 @@ class FramewiseVCTK(object):
         window_size_frames = sample_rate // 1000 * self.window_size
         hop_size_frames = sample_rate // 1000 * self.hop_size
         data_ind = item - self.cumsize[vctk_ind]
-        return data[data_ind * hop_size_frames: data_ind * hop_size_frames + window_size_frames]
+        output = data[data_ind * hop_size_frames: data_ind * hop_size_frames + window_size_frames]
+        if self.window_type == 'hanning':
+            return output * numpy.hanning(output.shape[0])
+        elif self.window_type == 'none':
+            return output
+        else:
+            raise ValueError
 
     def __len__(self):
         return self.total_length
