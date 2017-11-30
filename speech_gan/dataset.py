@@ -24,7 +24,7 @@ class VCTK(object):
 
 
 class FramewiseVCTK(object):
-    def __init__(self, dataset, window_size=40, hop_size=5, window_type='none'):
+    def __init__(self, dataset, window_size=40, hop_size=5, window_type='hanning'):
         self.vctk_dataset = dataset
         self.window_size = window_size
         self.hop_size = hop_size
