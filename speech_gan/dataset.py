@@ -43,8 +43,10 @@ class FramewiseVCTK(object):
         vctk_ind = bisect(self.cumsize, item)
         txt, wav = self.vctk_dataset[vctk_ind]
         sample_rate, data = read(wav)
+        window_size_frames = sample_rate // 1000 * self.window_size
+        hop_size_frames = sample_rate // 1000 * self.hop_size
         data_ind = item - self.cumsize[vctk_ind]
-        return data[data_ind * self.hop_size: data_ind * self.hop_size + self.window_size]
+        return data[data_ind * hop_size_frames: data_ind * hop_size_frames + window_size_frames]
 
     def __len__(self):
         return self.total_length
