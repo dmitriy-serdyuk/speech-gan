@@ -47,12 +47,14 @@ class FramewiseVCTK(object):
         sample_rate, data = read(wav)
         window_size_frames = sample_rate // 1000 * self.window_size
         hop_size_frames = sample_rate // 1000 * self.hop_size
-        data_ind = item - self.cumsize[vctk_ind]
+        data_ind = item - ([0] + self.cumsize)[vctk_ind]
         output = data[data_ind * hop_size_frames: data_ind * hop_size_frames + window_size_frames]
+        if output.shape[0] < window_size_frames:
+            raise ValueError
         if self.window_type == 'hanning':
-            return output * numpy.hanning(output.shape[0])
+            return numpy.cast['float32'](output * numpy.hanning(output.shape[0]))
         elif self.window_type == 'none':
-            return output
+            return numpy.cast['float32'](output)
         else:
             raise ValueError
 
